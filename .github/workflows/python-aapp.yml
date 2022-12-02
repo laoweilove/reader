@@ -79,7 +79,7 @@ jobs:
       
     - name: Build
       run: |
-        pyinstaller -F -c reader.py -N
+        pyinstaller -F -c reader.py -n reader-${{ matrix.os }}
 
     - name: Package
       working-directory: .
