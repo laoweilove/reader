@@ -16,8 +16,6 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    outputs: 
-      upload_url: ${{ steps.create_release.outputs.upload_url }} 
 
     steps:
       - name: Audit gh version
@@ -53,7 +51,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
   build:
     name: Build reader
     needs: release
@@ -83,13 +80,12 @@ jobs:
         run: |
           pyinstaller -F -c reader.py -n reader-${{ matrix.os }}
 
-      - name: Upload assets
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
+      - name: Upload
+        run: |
+          until gh release upload --clobber --repo ${{ github.repository }} reader-${{ matrix.os }} ; do
+            echo "Attempt $((++attempts)) to upload release artifacts failed. Will retry in 20s"
+            sleep 20
+          done
+        timeout-minutes: 10
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: reader-${{ matrix.os }}
-          asset_name: reader-${{ matrix.os }}
-          asset_content_type: application
