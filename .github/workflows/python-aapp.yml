@@ -39,18 +39,16 @@ jobs:
         with:
           ref: '${{ github.event.inputs.ref }}'
 
-      - name: Create release
-        if: env.already_exists == 'false'
-        run: >
-          gh release create
-          '${{ github.event.inputs.tag }}'
-          --draft
-          --repo '${{ github.repository }}'
-          --title '${{ github.event.inputs.tag }}'
-          --target '${{ github.event.inputs.ref }}'
-          --generate-notes
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
 
   build:
     name: Build reader
