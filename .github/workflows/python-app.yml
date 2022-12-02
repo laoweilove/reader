@@ -1,33 +1,73 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
-name: Python application
+name: Release reader
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: read
+    tags:
+    - v*
 
 jobs:
-  build:
-
+  release:
+    name: Create Release
     runs-on: ubuntu-latest
+    outputs: 
+      upload_url: ${{ steps.create_release.outputs.upload_url }} 
+    
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+  build:
+    name: Build reader
+    needs: release
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: reader
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-11.0, windows-2019]
+        python-version: [3.8]
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
       with:
-        python-version: "3.8"
+        python-version: ${{ matrix.python-version }}
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+    
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pyinstaller 
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with pyinstaller
+        pip install -r requirements.txt
+        pip install pyinstaller
+      
+    - name: Build
       run: |
         pyinstaller -F -c reader.py
+
+    - name: Package
+      working-directory: .
+      run: |
+        tar -zcvf reader-${{ matrix.os }}.tar.gz -C reader/dist *
+
+    - name: Upload assets
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.release.outputs.upload_url }}
+        asset_path: reader-${{ matrix.os }}.tar.gz
+        asset_name: reader-${{ matrix.os }}.tar.gz
+        asset_content_type: application/gzip
