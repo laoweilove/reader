@@ -81,13 +81,8 @@ jobs:
       run: |
         pyinstaller -F -c reader.py -n reader-${{ matrix.os }}
 
-    - name: Upload assets
-      id: upload-release-asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.release.outputs.upload_url }}
-        asset_path: reader-${{ matrix.os }}
-        asset_name: reader-${{ matrix.os }}
-        asset_content_type: application
+        - name: Download a Build Artifact
+          uses: actions/download-artifact@v3.0.1
+          with:
+            name: reader-${{ matrix.os }}
+            path: reader-${{ matrix.os }}
