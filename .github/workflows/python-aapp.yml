@@ -15,7 +15,6 @@ permissions:
 jobs:
   build:
     name: Build reader
-    needs: release
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
