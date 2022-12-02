@@ -72,17 +72,16 @@ jobs:
       uses: actions/checkout@v3
     
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
+      run: 
         pip install -r requirements.txt
         pip install pyinstaller
       
     - name: Build
-      run: |
+      run: 
         pyinstaller -F -c reader.py -n reader-${{ matrix.os }}
 
-        - name: Download a Build Artifact
-          uses: actions/download-artifact@v3.0.1
-          with:
-            name: reader-${{ matrix.os }}
-            path: reader-${{ matrix.os }}
+    - name: Download a Build Artifact
+      uses: actions/download-artifact@v3.0.1
+      with:
+        name: reader-${{ matrix.os }}
+        path: reader-${{ matrix.os }}
