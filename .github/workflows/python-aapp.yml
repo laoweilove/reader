@@ -84,7 +84,7 @@ jobs:
     - name: Package
       working-directory: .
       run: |
-        tar -zcvf reader-${{ matrix.os }}.tar.gz -C reader/dist *
+        tar -zcvf reader-${{ matrix.os }}.tar.gz -C dist *
 
     - name: Upload assets
       id: upload-release-asset
