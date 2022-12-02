@@ -5,8 +5,7 @@ name: Release reader
 
 on:
   push:
-    tags:
-    - v*
+    tags: reader
 
 jobs:
   release:
