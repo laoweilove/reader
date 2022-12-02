@@ -1,0 +1,73 @@
+config:
+  sites:
+    biquge:
+      name: "笔趣阁"
+      url:
+        chapter:
+          url: '{c}'
+          method: GET
+          encoding: gbk
+        content:
+          url: https://www.qu-la.com{o}
+          method: GET
+          encoding: gbk
+        search:
+          url: https://so.biqusoso.com/s2.php?siteid=qu-la.com&q={k}&ie=utf-8
+          method: GET
+          encoding: utf-8
+      xpath:
+        chapter_name: //ul[2]/li/a/text()
+        chapter_path: //ul[2]/li/a/@href
+        content: //div[@class="txt"]/text()
+        search_name: //span[@class="s2"]/a/text()
+        search_path: //span[@class="s2"]/a/@href
+      proxies:
+        http: http://127.0.0.1:7890
+        https: http://127.0.0.1:7890
+      verify: true
+    nanshan:
+      name: "南山书院"
+      url:
+        chapter:
+          url: https:{c}
+          method: GET
+          encoding: gbk
+        content:
+          url: https://www.szyangxiao.com{o}
+          method: GET
+          encoding: gbk
+        search:
+          url: https://www.szyangxiao.com/modules/article/search.php?searchkey={k}&page={p}
+          method: GET
+          encoding: gbk
+      xpath:
+        chapter_name: //ul/span/a/text()
+        chapter_path: //ul/span/a/@href
+        content: //div[@id="content"]/p/text()
+        search_name: //ul/span/a[2]/text()
+        search_path: //ul/span/a[1]/@href
+      proxies:
+      verify: true
+    yuedsk:
+      name: "阅读库"
+      url:
+        chapter:
+          url: '{c}'
+          method: GET
+          encoding: utf-8
+        content:
+          url: '{o}'
+          method: GET
+          encoding: utf-8
+        search:
+          url: http://www.yuedsk.com/modules/article/search.php?q={k}
+          method: GET
+          encoding: utf-8
+      xpath:
+        chapter_name: //li[@class="chapter"]/a/text()
+        chapter_path: //li[@class="chapter"]/a/@href
+        content: //div[@id="clickeye_content"]/text()
+        search_name: //div[@class="c_row"]/div[2]/div[1]/span/a/text()
+        search_path: //div[@class="c_row"]/div[2]/div[1]/a/@href
+      proxies:
+      verify: true
