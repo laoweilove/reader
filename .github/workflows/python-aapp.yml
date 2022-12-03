@@ -82,7 +82,7 @@ jobs:
 
       - name: Upload
         run: |
-          until gh release upload --clobber --repo ${{ github.repository }} reader-${{ matrix.os }} ; do
+          until gh release upload --clobber --repo ${{ github.repository }} ${{ github.event.inputs.tag }} ; do
             echo "Attempt $((++attempts)) to upload release artifacts failed. Will retry in 20s"
             sleep 20
           done
