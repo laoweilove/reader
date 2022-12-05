@@ -1,7 +1,7 @@
-from requests import get,post
-from os import system,name
+from requests import get, post
+from os import system, name
 from lxml.etree import HTML
-from yaml import load,Loader
+from yaml import load, Loader
 import sqlite3
 from urllib.parse import quote
 from sys import exit as exit_
@@ -16,8 +16,6 @@ update_config = '''update settings  set defaultconfig = '%s' where id = 1 '''
 update_bookname = '''update settings set lastbookname = '%s' where id = 1 '''
 update_bookpath = '''update settings set lastbook = '%s' where id = 1 '''
 update_chapter = '''update settings set lastchapter = '%s' where id = 1 '''
-
-
 
 LOGO = '''
     
@@ -50,11 +48,12 @@ class Reader(object):
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.53',
             'Cookie': self.cookie
         }
+
     def add_history(self, bookname):
         ts = int(time())
         x = courser.execute('''select * from history  where bookname = '%s' ''' % bookname).fetchall()
 
-        if x != []:
+        if x:
             courser.execute(
                 '''update history set lastchapter = '%d',date = '%d',config = '%s', chapterpath ='%s'  where bookname = '%s' ''' % (
                     self.last_chapter, ts, self.default, self.last_book, bookname))
