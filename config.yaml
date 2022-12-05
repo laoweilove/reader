@@ -74,3 +74,30 @@ config:
       proxies:
       verify: true
       cookie:
+    ibiquge:
+      name: "香书小说"
+      url:
+        chapter:
+          url: '{c}'
+          method: GET
+          encoding: utf-8
+        content:
+          url: 'https://www.ibiquge.la/{o}'
+          method: GET
+          encoding: utf-8
+        search:
+          url: https://www.ibiquge.la/modules/article/waps.php
+          method: POST
+          data: searchkey={k}
+          encoding: utf-8
+      xpath:
+        chapter_name: //dl/dd/a/text()
+        chapter_path: //dl/dd/a/@href
+        content: //div[@id="content"]/text()
+        search_name: //td[@class="even"]/a/text()
+        search_path: //td[@class="even"]/a/@href
+      proxies:
+        http: http://127.0.0.1:7890
+        https: http://127.0.0.1:7890
+      verify: true
+      cookie:
