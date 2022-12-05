@@ -28,7 +28,7 @@ LOGO = '''
                         |_|  |___||__,||___||___||_|  
                                                       
         
-                                                              by laowei
+                                                                by laowei
 1、 search(s)   2、 setting(t)   3、 continue(c)    4、 history(h)    5、 exit(e)                                                                          
 '''
 
