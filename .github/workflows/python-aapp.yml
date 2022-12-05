@@ -81,11 +81,7 @@ jobs:
           pyinstaller -F -c reader.py -n reader-${{ matrix.os }}
 
       - name: Upload
-        run: |
-          until gh release upload --clobber --repo ${{ github.repository }} ${{ github.event.inputs.tag }} ; do
-            echo "Attempt $((++attempts)) to upload release artifacts failed. Will retry in 20s"
-            sleep 20
-          done
-        timeout-minutes: 10
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: reader-${{ matrix.os }}
+          path: ./dist/reader-${{ matrix.os }}
