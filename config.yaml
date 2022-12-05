@@ -25,6 +25,7 @@ config:
         http: http://127.0.0.1:7890
         https: http://127.0.0.1:7890
       verify: true
+      cookie:
     nanshan:
       name: "南山书院"
       url:
@@ -48,6 +49,7 @@ config:
         search_path: //ul/span/a[1]/@href
       proxies:
       verify: true
+      cookie:
     yuedsk:
       name: "阅读库"
       url:
@@ -71,3 +73,4 @@ config:
         search_path: //div[@class="c_row"]/div[2]/div[1]/a/@href
       proxies:
       verify: true
+      cookie:
