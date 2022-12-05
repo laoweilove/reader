@@ -7,6 +7,7 @@ from urllib.parse import quote
 from sys import exit as exit_
 from time import time
 
+
 db = sqlite3.connect('reader.db')
 courser = db.cursor()
 configs = load(open('config.yaml'), Loader=Loader)
@@ -16,6 +17,7 @@ update_config = '''update settings  set defaultconfig = '%s' where id = 1 '''
 update_bookname = '''update settings set lastbookname = '%s' where id = 1 '''
 update_bookpath = '''update settings set lastbook = '%s' where id = 1 '''
 update_chapter = '''update settings set lastchapter = '%s' where id = 1 '''
+
 
 LOGO = '''
     
