@@ -7,7 +7,6 @@ from urllib.parse import quote
 from sys import exit as exit_
 from time import time
 
-
 db = sqlite3.connect('reader.db')
 courser = db.cursor()
 configs = load(open('config.yaml'), Loader=Loader)
@@ -17,7 +16,6 @@ update_config = '''update settings  set defaultconfig = '%s' where id = 1 '''
 update_bookname = '''update settings set lastbookname = '%s' where id = 1 '''
 update_bookpath = '''update settings set lastbook = '%s' where id = 1 '''
 update_chapter = '''update settings set lastchapter = '%s' where id = 1 '''
-
 
 LOGO = '''
     
@@ -48,6 +46,7 @@ class Reader(object):
         self.dic = {}
         self.h = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.53',
+            'Content-Type': 'application/x-www-form-urlencoded',
             'Cookie': self.cookie
         }
 
