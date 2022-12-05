@@ -59,6 +59,7 @@ yuedsk:
         search_path: //div[@class="c_row"]/div[2]/div[1]/a/@href
       proxies:             # 代理
       verify: true         # 证书验证
+      cookie:              # cookie
 
 ```
 
