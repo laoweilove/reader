@@ -101,3 +101,27 @@ config:
         https: http://127.0.0.1:7890
       verify: true
       cookie:
+    xxbiqudu:
+      name: "笔趣阁2"
+      url:
+        chapter:
+          url: 'https://www.xxbiqudu.com{c}'
+          method: GET
+          encoding: gbk
+        content:
+          url: '{o}'
+          method: GET
+          encoding: gbk
+        search:
+          url: https://m.xxbiqudu.com/s.php?keyword={k}
+          method: GET
+          encoding: gbk
+      xpath:
+        chapter_name: //dl/dd/a/text()
+        chapter_path: //dl/dd/a/@href
+        content: //div[@id="content"]/text()
+        search_name: //p[@class="line"]/a[2]/text()
+        search_path: //p[@class="line"]/a[2]/@href
+      proxies:
+      verify: true
+      cookie:
