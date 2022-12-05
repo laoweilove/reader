@@ -9,12 +9,12 @@ from time import time
 
 db = sqlite3.connect('reader.db')
 courser = db.cursor()
-configs = load(open('config.yaml'), Loader=Loader)
+configs = load(open('config.yaml', encoding='utf-8'), Loader=Loader)
 full_config = configs['config']['sites']
 
 update_config = '''update settings  set defaultconfig = '%s' where id = 1 '''
 update_bookname = '''update settings set lastbookname = '%s' where id = 1 '''
-update_bookpath = '''update settings set lastbook = '%s' where id = 1 '''
+update_book_path = '''update settings set lastbook = '%s' where id = 1 '''
 update_chapter = '''update settings set lastchapter = '%s' where id = 1 '''
 
 LOGO = '''
@@ -87,7 +87,7 @@ class Reader(object):
         print(book_name)
         self.last_book = book_url
         self.last_book_name = book_name
-        courser.execute(update_bookpath % book_url)
+        courser.execute(update_book_path % book_url)
         courser.execute(update_bookname % book_name)
         db.commit()
         self.get_chapters(self.last_book)
@@ -183,7 +183,6 @@ class Reader(object):
         x = courser.execute('''select * from history  order by date desc''').fetchall()
         for i, j in enumerate(x):
             print(i, j[1], j[3], j[4])
-
         choice = int(input('Choose'))
         history = x[choice]
         self.default = history[4]
