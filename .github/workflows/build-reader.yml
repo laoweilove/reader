@@ -1,0 +1,120 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: build reader
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Audit gh version
+        run: gh --version
+
+      - name: Check for existing release
+        id: check_release
+        run: |
+          echo "::echo::on"
+          gh release view --repo '${{ github.repository }}' '${{ github.event.inputs.tag }}' \
+            && echo "already_exists=true" >> $GITHUB_ENV \
+            || echo "already_exists=false" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout repo
+        if: env.already_exists == 'false'
+        uses: actions/checkout@v3
+        with:
+          ref: '${{ github.event.inputs.ref }}'
+
+      - name: Create Release
+        id: create_release
+        if: env.already_exists == 'false'
+        run: >
+          gh release create
+          '${{ github.event.inputs.tag }}'
+          --draft
+          --repo '${{ github.repository }}'
+          --title '${{ github.event.inputs.tag }}'
+          --target '${{ github.event.inputs.ref }}'
+          --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    name: Build reader
+    needs: release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: [3.8]
+
+    steps:
+    
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+        
+      - name: Build
+        run: |
+          pyinstaller -F -c reader.py -n reader-${{ matrix.os }}
+
+      - name: Upload
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: reader-${{ matrix.os }}
+          path: ./dist/reader-${{ matrix.os }}
+  build-win:
+    name: Build win reader
+    needs: release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        python-version: [3.8]
+
+    steps:
+    
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+        
+      - name: Build
+        run: |
+          pyinstaller -F -c reader.py -n reader-${{ matrix.os }}
+
+      - name: Upload
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: reader-${{ matrix.os }}
+          path: ./dist/reader-${{ matrix.os }}.exe
