@@ -1,15 +1,15 @@
-import requests as res
-import os
+from requests import get,post
+from os import system,name
 from lxml.etree import HTML
-import yaml
+from yaml import load,Loader
 import sqlite3
 from urllib.parse import quote
-import sys
-import time
+from sys import exit as exit_
+from time import time
 
 db = sqlite3.connect('reader.db')
 courser = db.cursor()
-configs = yaml.load(open('config.yaml'), Loader=yaml.Loader)
+configs = load(open('config.yaml'), Loader=Loader)
 full_config = configs['config']['sites']
 
 update_config = '''update settings  set defaultconfig = '%s' where id = 1 '''
@@ -17,9 +17,7 @@ update_bookname = '''update settings set lastbookname = '%s' where id = 1 '''
 update_bookpath = '''update settings set lastbook = '%s' where id = 1 '''
 update_chapter = '''update settings set lastchapter = '%s' where id = 1 '''
 
-h = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.53'
-}
+
 
 LOGO = '''
     
@@ -46,10 +44,14 @@ class Reader(object):
         self.chapter_url = self.last_book
         self.proxies = self.config['proxies']
         self.verify = self.config['verify']
+        self.cookie = self.config['cookie']
         self.dic = {}
-
+        self.h = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.53',
+            'Cookie': self.cookie
+        }
     def add_history(self, bookname):
-        ts = int(time.time())
+        ts = int(time())
         x = courser.execute('''select * from history  where bookname = '%s' ''' % bookname).fetchall()
 
         if x != []:
@@ -69,11 +71,11 @@ class Reader(object):
         if self.config['url']['search']['method'] == 'GET' or self.config['url']['content']['method'] == 'get':
             url = self.config['url']['search']['url'].replace('{k}', quote(keyword)).replace('{p}', str(page))
 
-            s = res.get(url, headers=h, proxies=self.proxies, verify=self.verify)
+            s = get(url, headers=self.h, proxies=self.proxies, verify=self.verify)
         else:
             url = self.config['url']['search']['url']
             d = self.config['url']['search']['data'].replace('{k}', quote(keyword)).replace('{p}', str(page))
-            s = res.post(url, d, headers=h, proxies=self.proxies, verify=self.verify)
+            s = post(url, d, headers=self.h, proxies=self.proxies, verify=self.verify)
         s.encoding = self.config['url']['search']['encoding']
         paths = HTML(s.text).xpath(self.config['xpath']['search_path'])
         names = HTML(s.text).xpath(self.config['xpath']['search_name'])
@@ -96,8 +98,8 @@ class Reader(object):
 
     @staticmethod
     def exit_e():
-        os.system('cls' if os.name == 'nt' else 'clear')
-        sys.exit()
+        system('cls' if name == 'nt' else 'clear')
+        exit_()
 
     def setting(self):
         selections = [i for i in full_config.keys()]
@@ -120,11 +122,11 @@ class Reader(object):
         self.dic = {}
         if self.config['url']['chapter']['method'] == 'GET' or self.config['url']['content']['method'] == 'get':
             url = self.config['url']['chapter']['url'].replace('{c}', book_url)
-            s = res.get(url, headers=h, proxies=self.proxies, verify=self.verify)
+            s = get(url, headers=self.h, proxies=self.proxies, verify=self.verify)
         else:
             url = self.config['url']['chapter']['url']
             d = self.config['url']['chapter']['data'].replace('{c}', book_url)
-            s = res.post(url, d, headers=h, proxies=self.proxies, verify=self.verify)
+            s = post(url, d, headers=self.h, proxies=self.proxies, verify=self.verify)
         s.encoding = self.config['url']['chapter']['encoding']
         chapter_urls = HTML(s.text).xpath(self.config['xpath']['chapter_path'])
         chapter_names = HTML(s.text).xpath(self.config['xpath']['chapter_name'])
@@ -137,7 +139,7 @@ class Reader(object):
 
         while choice is not None:
             if choice == 'clear' or choice == 'c' or choice == 'C':
-                os.system('cls' if os.name == 'nt' else 'clear')
+                system('cls' if name == 'nt' else 'clear')
             elif choice == 'e' or choice == 'exit' or choice == 'E':
                 self.exit_e()
             elif choice == 'b' or choice == 'B' or choice == 'back':
@@ -163,11 +165,11 @@ class Reader(object):
                 cc = self.dic[choices[self.last_chapter]]
                 if self.config['url']['content']['method'] == 'GET' or self.config['url']['content']['method'] == 'get':
                     url = self.config['url']['content']['url'].replace('{o}', cc)
-                    s = res.get(url, headers=h, proxies=self.proxies, verify=self.verify)
+                    s = get(url, headers=self.h, proxies=self.proxies, verify=self.verify)
                 else:
                     url = self.config['url']['content']['url']
                     d = self.config['url']['content']['data'].replace('{o}', cc)
-                    s = res.post(url, d, headers=h, proxies=self.proxies, verify=self.verify)
+                    s = post(url, d, headers=self.h, proxies=self.proxies, verify=self.verify)
                 s.encoding = self.config['url']['content']['encoding']
                 x = HTML(s.text).xpath(self.config['xpath']['content'])
                 print('\n'.join(x))
