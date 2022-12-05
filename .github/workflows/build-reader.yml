@@ -4,8 +4,9 @@
 name: build reader
 on:
   push:
-    branches: 
-      - "reader.py"
+    branches: ["main"]
+    paths: 
+      - reader.py
   pull_request:
     branches: [ "main" ]
 
