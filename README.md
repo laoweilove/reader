@@ -82,6 +82,6 @@ yuedsk:
 ## 12.5 更新
 
 - 配置文件新增cookie选项
-- 程序新增connec-type
+- 程序新增Content-Type 为application/x-www-form-urlencoded，如后续其他书源不能使用这个选项，会考虑在配置文件中分别配置
 - 新增两个书源
 - 简单优化
