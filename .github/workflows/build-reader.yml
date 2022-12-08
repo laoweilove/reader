@@ -7,7 +7,7 @@ on:
     branches: ["main"]
     paths: 
       - reader.py
-      - ./.github/workflows/build-reader.yml
+      - .github/workflows/build-reader.yml
   pull_request:
     branches: [ "main" ]
 
