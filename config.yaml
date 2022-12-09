@@ -6,16 +6,19 @@ config:
         chapter:
           url: '{c}'
           method: GET
+          type: xpath
           encoding: gbk
         content:
           url: https://www.qu-la.com{o}
           method: GET
+          type: xpath
           encoding: gbk
         search:
           url: https://so.biqusoso.com/s2.php?siteid=qu-la.com&q={k}&ie=utf-8
           method: GET
+          type: xpath
           encoding: utf-8
-      xpath:
+      rules:
         chapter_name: //ul[2]/li/a/text()
         chapter_path: //ul[2]/li/a/@href
         content: //div[@class="txt"]/text()
@@ -32,16 +35,19 @@ config:
         chapter:
           url: https:{c}
           method: GET
+          type: xpath
           encoding: gbk
         content:
           url: https://www.szyangxiao.com{o}
           method: GET
+          type: xpath
           encoding: gbk
         search:
           url: https://www.szyangxiao.com/modules/article/search.php?searchkey={k}&page={p}
           method: GET
+          type: xpath
           encoding: gbk
-      xpath:
+      rules:
         chapter_name: //ul/span/a/text()
         chapter_path: //ul/span/a/@href
         content: //div[@id="content"]/p/text()
@@ -56,16 +62,19 @@ config:
         chapter:
           url: '{c}'
           method: GET
+          type: xpath
           encoding: utf-8
         content:
           url: '{o}'
           method: GET
+          type: xpath
           encoding: utf-8
         search:
           url: http://www.yuedsk.com/modules/article/search.php?q={k}
           method: GET
+          type: xpath
           encoding: utf-8
-      xpath:
+      rules:
         chapter_name: //li[@class="chapter"]/a/text()
         chapter_path: //li[@class="chapter"]/a/@href
         content: //div[@id="clickeye_content"]/text()
@@ -80,17 +89,20 @@ config:
         chapter:
           url: '{c}'
           method: GET
+          type: xpath
           encoding: utf-8
         content:
-          url: 'https://www.ibiquge.la/{o}'
+          url: https://www.ibiquge.la/{o}
           method: GET
+          type: xpath
           encoding: utf-8
         search:
           url: https://www.ibiquge.la/modules/article/waps.php
           method: POST
           data: searchkey={k}
+          type: xpath
           encoding: utf-8
-      xpath:
+      rules:
         chapter_name: //dl/dd/a/text()
         chapter_path: //dl/dd/a/@href
         content: //div[@id="content"]/text()
@@ -105,18 +117,21 @@ config:
       name: "笔趣阁2"
       url:
         chapter:
-          url: 'https://www.xxbiqudu.com{c}'
+          url: https://www.xxbiqudu.com{c}
           method: GET
+          type: xpath
           encoding: gbk
         content:
           url: '{o}'
           method: GET
+          type: xpath
           encoding: gbk
         search:
           url: https://m.xxbiqudu.com/s.php?keyword={k}
           method: GET
+          type: xpath
           encoding: gbk
-      xpath:
+      rules:
         chapter_name: //dl/dd/a/text()
         chapter_path: //dl/dd/a/@href
         content: //div[@id="content"]/text()
@@ -125,3 +140,60 @@ config:
       proxies:
       verify: true
       cookie:
+    fanqie:
+      name: "番茄小说"
+      url:
+        chapter:
+          url: https://www.fanqianxs.com{c}
+          method: GET
+          type: xpath
+          encoding: utf-8
+        content:
+          url: https://www.fanqianxs.com{o}
+          method: GET
+          type: xpath
+          encoding: utf-8
+        search:
+          url: https://www.fanqianxs.com/api/search?q={k}
+          method: GET
+          type: json
+          encoding: utf-8
+      rules:
+        search_json: data.search
+        chapter_name: //dl/dd/a/text()
+        chapter_path: //dl/dd/a/@href
+        content: //div[@id="htmlContent"]/p/text()
+        search_name: book_name
+        search_path: book_list_url
+      proxies:
+      verify: true
+      cookie:
+    4pan:
+      name: "永恒小说"
+      url:
+        chapter:
+          url: http://www.4pan.net{c}
+          method: GET
+          type: xpath
+          encoding: utf-8
+        content:
+          url: http://www.4pan.net{d}{o}
+          method: GET
+          type: xpath
+          encoding: utf-8
+        search:
+          url: http://www.4pan.net/search.php
+          method: POST
+          type: re
+          data: key={k}
+          encoding: utf-8
+      rules:
+        chapter_name: //li[@id="chapter"]/a/text()
+        chapter_path: //li[@id="chapter"]/a/@href
+        content: //div[@id="txt"]/dd/p/text()
+        search_name: class="book_cov" title="([^"]+)"
+        search_path: href="(/xs/\d+/\d+/)\d+.html"
+      proxies:
+      verify: true
+      cookie:
+  version: '1.1'
