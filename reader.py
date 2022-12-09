@@ -6,11 +6,17 @@ import sqlite3
 from urllib.parse import quote
 from sys import exit as exit_
 from time import time
+from re import findall
 
 db = sqlite3.connect('reader.db')
 courser = db.cursor()
 configs = load(open('config.yaml', encoding='utf-8'), Loader=Loader)
 full_config = configs['config']['sites']
+config_version = configs['config']['version']
+version = '1.1'
+if config_version != version:
+    print(f'config version is {config_version} ，please upgrade to version {version}')
+    exit_()
 
 update_config = '''update settings  set defaultconfig = '%s' where id = 1 '''
 update_bookname = '''update settings set lastbookname = '%s' where id = 1 '''
@@ -43,6 +49,7 @@ class Reader(object):
         self.proxies = self.config['proxies']
         self.verify = self.config['verify']
         self.cookie = self.config['cookie']
+
         self.dic = {}
         self.h = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.53',
@@ -68,7 +75,7 @@ class Reader(object):
     def search(self, page):
 
         keyword = input('search ')
-        if self.config['url']['search']['method'] == 'GET' or self.config['url']['content']['method'] == 'get':
+        if self.config['url']['search']['method'] == 'GET' or self.config['url']['search']['method'] == 'get':
             url = self.config['url']['search']['url'].replace('{k}', quote(keyword)).replace('{p}', str(page))
 
             s = get(url, headers=self.h, proxies=self.proxies, verify=self.verify)
@@ -76,9 +83,25 @@ class Reader(object):
             url = self.config['url']['search']['url']
             d = self.config['url']['search']['data'].replace('{k}', quote(keyword)).replace('{p}', str(page))
             s = post(url, d, headers=self.h, proxies=self.proxies, verify=self.verify)
+
         s.encoding = self.config['url']['search']['encoding']
-        paths = HTML(s.text).xpath(self.config['xpath']['search_path'])
-        names = HTML(s.text).xpath(self.config['xpath']['search_name'])
+        paths = []
+        names = []
+        if self.config['url']['search']['type'] == 'xpath':
+            paths = HTML(s.text).xpath(self.config['rules']['search_path'])
+            names = HTML(s.text).xpath(self.config['rules']['search_name'])
+        elif self.config['url']['search']['type'] == 'json':
+            json_dic = self.json_get(self.config['rules']['search_json'], s.json())
+            for i in json_dic:
+                paths.append(self.json_get(self.config['rules']['search_path'], i))
+                names.append(self.json_get(self.config['rules']['search_name'], i))
+        elif self.config['url']['search']['type'] == 're':
+            paths = findall(self.config['rules']['search_path'], s.text)
+            names = findall(self.config['rules']['search_name'], s.text)
+        else:
+            paths = []
+            names = []
+
         for i, j in enumerate(names):
             print(i, j)
         choice = input()
@@ -112,6 +135,15 @@ class Reader(object):
         db.commit()
         main()
 
+    @staticmethod
+    def json_get(string, json_dic):
+        x = string.split('.')
+        result_dic = json_dic
+        for i in x:
+            result_dic = result_dic[i]
+
+        return result_dic
+
     def continue_e(self):
         self.get_chapters(self.last_book)
         choices = sorted(self.dic.keys())
@@ -120,7 +152,7 @@ class Reader(object):
 
     def get_chapters(self, book_url):
         self.dic = {}
-        if self.config['url']['chapter']['method'] == 'GET' or self.config['url']['content']['method'] == 'get':
+        if self.config['url']['chapter']['method'] == 'GET' or self.config['url']['chapter']['method'] == 'get':
             url = self.config['url']['chapter']['url'].replace('{c}', book_url)
             s = get(url, headers=self.h, proxies=self.proxies, verify=self.verify)
         else:
@@ -128,8 +160,26 @@ class Reader(object):
             d = self.config['url']['chapter']['data'].replace('{c}', book_url)
             s = post(url, d, headers=self.h, proxies=self.proxies, verify=self.verify)
         s.encoding = self.config['url']['chapter']['encoding']
-        chapter_urls = HTML(s.text).xpath(self.config['xpath']['chapter_path'])
-        chapter_names = HTML(s.text).xpath(self.config['xpath']['chapter_name'])
+        chapter_urls = []
+        chapter_names = []
+        if self.config['url']['chapter']['type'] == 'xpath':
+            chapter_urls = HTML(s.text).xpath(self.config['rules']['chapter_path'])
+            chapter_names = HTML(s.text).xpath(self.config['rules']['chapter_name'])
+
+        elif self.config['url']['chapter']['type'] == 'json':
+            json_dic = self.json_get(self.config['rules']['chapter_json'], s.json())
+            for i in json_dic:
+                chapter_names.append(self.json_get(self.config['rules']['chapter_name'], i))
+                chapter_urls.append(self.json_get(self.config['rules']['chapter_path'], i))
+
+        elif self.config['url']['chapter']['type'] == 're':
+            chapter_urls = findall(self.config['rules']['chapter_path'], s.text)
+            chapter_names = findall(self.config['rules']['chapter_name'], s.text)
+
+        else:
+            chapter_urls = []
+            chapter_names = []
+
         for i, j in enumerate(chapter_names):
             self.dic.update({j: chapter_urls[i]})
 
@@ -164,14 +214,26 @@ class Reader(object):
                 self.add_history(self.last_book_name)
                 cc = self.dic[choices[self.last_chapter]]
                 if self.config['url']['content']['method'] == 'GET' or self.config['url']['content']['method'] == 'get':
-                    url = self.config['url']['content']['url'].replace('{o}', cc)
+                    url = self.config['url']['content']['url'].replace('{o}', cc).replace('{d}',self.last_book)
                     s = get(url, headers=self.h, proxies=self.proxies, verify=self.verify)
                 else:
                     url = self.config['url']['content']['url']
-                    d = self.config['url']['content']['data'].replace('{o}', cc)
+                    d = self.config['url']['content']['data'].replace('{o}', cc).replace('{d}',self.last_book)
                     s = post(url, d, headers=self.h, proxies=self.proxies, verify=self.verify)
                 s.encoding = self.config['url']['content']['encoding']
-                x = HTML(s.text).xpath(self.config['xpath']['content'])
+                x = []
+                if self.config['url']['content']['type'] == 'xpath':
+
+                    x = HTML(s.text).xpath(self.config['rules']['content'])
+                elif self.config['url']['content']['type'] == 'json':
+                    content_json = self.json_get(self.config['rules']['content_json'], s.json())
+                    for i in content_json:
+                        x.append(self.json_get(self.config['rules']['content'], i))
+                elif self.config['url']['content']['type'] == 're':
+                    x = findall(self.config['rules']['content'], s.text)
+                else:
+                    x = []
+
                 print('\n'.join(x))
                 print(
                     '\n\n\n----------------------------------------------------------------------------------------------------------------\n\n\n'
