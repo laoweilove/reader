@@ -7,6 +7,7 @@ on:
     branches: ["main"]
     paths: 
       - reader.py
+      - .github/workflows/build-reader.yml
   pull_request:
     branches: [ "main" ]
 
@@ -59,7 +60,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: [3.10]
+        python-version: [3.8]
 
     steps:
     
