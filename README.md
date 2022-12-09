@@ -42,14 +42,17 @@ yuedsk:
         chapter:           # 章节 配置
           url: '{c}'       # 地址  
           method: GET      # 请求方式
+          type: xpath      #type配置
           encoding: utf-8  # 编码
         content:           # 内容配置
           url: '{o}'
           method: GET
+          type: xpath      #type配置
           encoding: utf-8
         search:            # 搜索配置
           url: http://www.yuedsk.com/modules/article/search.php?q={k}
           method: GET
+          type: xpath      #type配置
           encoding: utf-8
       xpath:               # xpath
         chapter_name: //li[@class="chapter"]/a/text()
