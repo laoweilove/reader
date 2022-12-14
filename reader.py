@@ -146,7 +146,7 @@ class Reader(object):
 
     def continue_e(self):
         self.get_chapters(self.last_book)
-        choices = sorted(self.dic.keys())
+        choices = [i for i in self.dic.keys()]
         print(f'上次看到第{self.last_chapter}章，可输入{self.last_chapter}进入或回车键进入下一章')
         self.read(choices, self.last_chapter)
 
